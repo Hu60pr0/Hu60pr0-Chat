@@ -351,6 +351,23 @@
       transition: opacity 0.2s;
     }
     #theme-btn:hover { opacity: 1; }
+    /* Confirmación visual */
+    .msg-check {
+      position: absolute;
+      right: 10px;
+      top: 8px;
+      font-size: 1.2em;
+      color: #43e97b;
+      opacity: 0;
+      pointer-events: none;
+      animation: fadeCheck 1.2s forwards;
+    }
+    @keyframes fadeCheck {
+      0% { opacity: 0; }
+      20% { opacity: 1; }
+      80% { opacity: 1; }
+      100% { opacity: 0; }
+    }
   </style>
 </head>
 <body>
@@ -475,6 +492,15 @@
     let contextMsgIndex = null;
     let contextMsgDiv = null;
 
+    // Confirmación visual al editar/eliminar
+    function showCheckEffect(msgDiv) {
+      const check = document.createElement('span');
+      check.textContent = '✓';
+      check.className = 'msg-check';
+      msgDiv.appendChild(check);
+      setTimeout(() => check.remove(), 1200);
+    }
+
     // Mostrar nombre de usuario
     function updateUsernameBtn() {
       usernameBtn.textContent = username;
@@ -573,8 +599,15 @@
             if (nuevo !== '' && nuevo !== msgObj.text) {
               chats[currentChat][contextMsgIndex].text = nuevo;
               saveChats();
+              renderMessages();
+              // Confirmación visual
+              setTimeout(() => {
+                const msg = messages.querySelector(`.message.you[data-msg-index="${contextMsgIndex}"]`);
+                if (msg) showCheckEffect(msg);
+              }, 50);
+            } else {
+              renderMessages();
             }
-            renderMessages();
           }
         };
         customContext.appendChild(editBtn);
@@ -588,6 +621,11 @@
           chats[currentChat][contextMsgIndex].text = 'Este mensaje fue eliminado';
           saveChats();
           renderMessages();
+          // Confirmación visual
+          setTimeout(() => {
+            const msg = messages.querySelector(`.message.you[data-msg-index="${contextMsgIndex}"]`);
+            if (msg) showCheckEffect(msg);
+          }, 50);
         };
         customContext.appendChild(deleteBtn);
       }
